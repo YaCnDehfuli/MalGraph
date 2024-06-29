@@ -1,0 +1,19 @@
+# disassembly / forensics (used on the lab host)
+smda>=1.13
+volatility3
+
+# graphs
+networkx>=3.0
+
+# representation learning
+torch>=2.0
+torch-geometric>=2.5
+transformers>=4.40
+tokenizers>=0.19
+datasets>=2.19
+
+# utils
+numpy
+scikit-learn
+matplotlib
+tqdm

@@ -1,0 +1,16 @@
+# memory dumps / carved regions (large, sensitive)
+*.raw
+*.dmp
+*.img
+dumps/
+pid*/
+
+# large SMDA reports (keep small fixtures only)
+Graph_PID*_from_*.json
+
+# python
+__pycache__/
+*.pyc
+
+# stray pip transcript
+=*
