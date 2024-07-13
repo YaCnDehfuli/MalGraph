@@ -57,3 +57,10 @@ def extract_functions_parallel(smda_data):
         for fut in as_completed(future_to_id):
             graphs[future_to_id[fut]] = fut.result()
     return graphs
+
+
+def build_all_cfgs(smda_data, parallel=True):
+    """Return {function_offset(int): nx.DiGraph} for every function in the report."""
+    raw = (extract_functions_parallel(smda_data) if parallel
+           else extract_functions(smda_data))
+    return {int(func_id): cfg for func_id, cfg in raw.items()}
