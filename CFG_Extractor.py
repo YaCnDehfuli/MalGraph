@@ -72,3 +72,57 @@ def build_all_cfgs(smda_data, parallel=True):
     raw = (extract_functions_parallel(smda_data) if parallel
            else extract_functions(smda_data))
     return {int(func_id): cfg for func_id, cfg in raw.items()}
+
+
+def _percentile(sorted_vals, q):
+    if not sorted_vals:
+        return 0
+    idx = min(len(sorted_vals) - 1, int(round((len(sorted_vals) - 1) * q)))
+    return sorted_vals[idx]
+
+
+def graph_stats(graphs):
+    """Corpus-level stats over all function CFGs."""
+    n_funcs = len(graphs)
+    total_nodes = sum(g.number_of_nodes() for g in graphs.values())
+    total_edges = sum(g.number_of_edges() for g in graphs.values())
+    block_lens = sorted(len(instr)
+                        for g in graphs.values()
+                        for _, instr in g.nodes(data="instructions") if instr)
+    return {
+        "functions": n_funcs,
+        "blocks": total_nodes,
+        "cfg_edges": total_edges,
+        "block_len_p50": _percentile(block_lens, 0.50),
+        "block_len_p99": _percentile(block_lens, 0.99),
+        "block_len_max": block_lens[-1] if block_lens else 0,
+    }
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__ or "SMDA report -> CFGs")
+    ap.add_argument("--report", default="examples/sample_pid.json")
+    ap.add_argument("--serial", action="store_true", help="disable parallel build")
+    ap.add_argument("--stats", action="store_true")
+    ap.add_argument("--draw", action="store_true")
+    ap.add_argument("--save-to", default=None,
+                    help="write the drawing here instead of opening a window")
+    args = ap.parse_args(argv)
+
+    smda = load_smda_json(args.report)
+    t0 = time.time()
+    graphs = build_all_cfgs(smda, parallel=not args.serial)
+    print(f"built {len(graphs)} function CFGs in {time.time() - t0:.2f}s")
+    if args.stats:
+        for k, v in graph_stats(graphs).items():
+            print(f"  {k}: {v}")
+    if args.draw or args.save_to:
+        # biggest function first: a one-block CFG makes a useless picture
+        fid = max(graphs, key=lambda f: graphs[f].number_of_nodes())
+        visualize_cfg(graphs[fid], title=f"Function 0x{fid:x}",
+                      save_to=args.save_to)
+    return graphs
+
+
+if __name__ == "__main__":
+    main()
