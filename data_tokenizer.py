@@ -28,3 +28,19 @@ def extract_block_sequences(report):
                for _addr, _hexbytes, mnemonic, operands in instructions]
         sequences.append(seq)
     return sequences
+
+
+INS_SEP = " [INS] "  # separates consecutive instructions within a block
+
+
+def block_to_line(seq):
+    """One basic block -> one corpus line, instructions joined by [INS]."""
+    return INS_SEP.join(seq)
+
+
+def iter_block_lines(report):
+    """Stream one corpus line per non-empty block (no full materialization)."""
+    for instructions in iter_blocks(report):
+        seq = [f"{mnemonic} {canonicalize_operands(operands)}".strip()
+               for _addr, _hexbytes, mnemonic, operands in instructions]
+        yield block_to_line(seq)
