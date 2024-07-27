@@ -24,6 +24,8 @@ def extract_block_sequences(report):
     """One sequence (list of 'mnemonic operands' strings) per basic block."""
     sequences = []
     for instructions in iter_blocks(report):
+        if not instructions:
+            continue  # empty blocks would emit blank corpus lines
         seq = [f"{mnemonic} {canonicalize_operands(operands)}".strip()
                for _addr, _hexbytes, mnemonic, operands in instructions]
         sequences.append(seq)
@@ -41,6 +43,8 @@ def block_to_line(seq):
 def iter_block_lines(report):
     """Stream one corpus line per non-empty block (no full materialization)."""
     for instructions in iter_blocks(report):
+        if not instructions:
+            continue
         seq = [f"{mnemonic} {canonicalize_operands(operands)}".strip()
                for _addr, _hexbytes, mnemonic, operands in instructions]
         yield block_to_line(seq)
