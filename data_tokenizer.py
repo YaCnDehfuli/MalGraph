@@ -66,3 +66,56 @@ def iter_block_lines(report):
         seq = [f"{mnemonic} {canonicalize_operands(operands)}".strip()
                for _addr, _hexbytes, mnemonic, operands in instructions]
         yield block_to_line(seq)
+
+
+def _stable_hash(line):
+    """sha1, not builtin hash(): PYTHONHASHSEED randomizes str hashing, which
+    would make the deduped corpus differ run to run."""
+    return hashlib.sha1(line.encode("utf-8")).hexdigest()
+
+
+def write_corpus(report, out_path, dedup=True, include_apis=True):
+    """Write one basic-block sequence per line, streaming, optionally deduped."""
+    with open(out_path, "w") as out:
+        return _stream_into(iter_corpus_lines(report, include_apis), out,
+                            set() if dedup else None)
+
+
+def _stream_into(lines, handle, seen):
+    n = 0
+    for line in lines:
+        if seen is not None:
+            h = _stable_hash(line)
+            if h in seen:
+                continue
+            seen.add(h)
+        handle.write(line + "\n")
+        n += 1
+    return n
+
+
+def main(argv=None):
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--report", default="examples/sample_pid.json",
+                        help="a single SMDA report")
+    parser.add_argument("--report-dir", default=None,
+                        help="a directory of reports (overrides --report)")
+    parser.add_argument("--out", default="corpus.txt")
+    parser.add_argument("--no-dedup", action="store_true")
+    args = parser.parse_args(argv)
+
+    if args.report_dir:
+        written, n_reports = write_corpus_from_dir(
+            args.report_dir, args.out, dedup=not args.no_dedup)
+        print(f"wrote {written} lines from {n_reports} reports to {args.out}")
+    else:
+        written = write_corpus(load_report(args.report), args.out,
+                               dedup=not args.no_dedup)
+        print(f"wrote {written} lines to {args.out}")
+    return args.out
+
+
+if __name__ == "__main__":
+    main()
