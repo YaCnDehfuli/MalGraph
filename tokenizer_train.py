@@ -7,7 +7,10 @@ from tokenizers.trainers import WordPieceTrainer
 from tokenizers.pre_tokenizers import Whitespace
 
 
-SPECIAL_TOKENS = ["[UNK]"]
+# [INS] separates instructions and [API] marks an import pseudo-block; [MASK] is
+# needed for MLM; [PAD]/[CLS]/[SEP] for BERT. Whitespace pre-tokenization would
+# otherwise shred "[INS]" into "[", "INS", "]".
+SPECIAL_TOKENS = ["[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]", "[INS]", "[API]"]
 
 
 # NOTE ON REPRODUCIBILITY: this step is not bit-reproducible, and it is the only
