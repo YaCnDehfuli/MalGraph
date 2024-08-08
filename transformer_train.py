@@ -38,3 +38,31 @@ def load_tokenizer(path="asm_tokenizer.json"):
 def read_corpus(path):
     with open(path, "r") as f:
         return [line.rstrip("\n") for line in f if line.strip()]
+
+
+class AsmMLMDataset(Dataset):
+    """Tokenize each basic-block line; masking is applied by the collator."""
+
+    def __init__(self, lines, tokenizer, max_len=MAX_LEN):
+        self.tokenizer = tokenizer
+        self.max_len = max_len
+        self.lines = lines
+
+    def __len__(self):
+        return len(self.lines)
+
+    def __getitem__(self, idx):
+        enc = self.tokenizer(
+            self.lines[idx],
+            truncation=True,
+            max_length=self.max_len,
+            return_attention_mask=True,
+        )
+        # a line that tokenizes to nothing would produce a zero-length row and
+        # break padding; fall back to a single [UNK].
+        ids = enc["input_ids"] or [self.tokenizer.unk_token_id]
+        mask = enc["attention_mask"] or [1]
+        return {
+            "input_ids": torch.tensor(ids, dtype=torch.long),
+            "attention_mask": torch.tensor(mask, dtype=torch.long),
+        }
