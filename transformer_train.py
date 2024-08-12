@@ -66,3 +66,30 @@ class AsmMLMDataset(Dataset):
             "input_ids": torch.tensor(ids, dtype=torch.long),
             "attention_mask": torch.tensor(mask, dtype=torch.long),
         }
+
+
+def bucket_by_length(lines, boundaries=(16, 32, 64, 128)):
+    """Group lines into length buckets so batches don't over-pad."""
+    buckets = {b: [] for b in boundaries + (float("inf"),)}
+    for line in lines:
+        n = line.count("[INS]") + 1
+        for b in buckets:
+            if n <= b:
+                buckets[b].append(line)
+                break
+    return buckets
+
+
+def mlm_collator(features, tokenizer, mlm_prob=0.15):
+    """Dynamic masking collator for masked-LM."""
+    batch = tokenizer.pad(features, return_tensors="pt")
+    input_ids = batch["input_ids"]
+    labels = input_ids.clone()
+
+    probability = torch.full(labels.shape, mlm_prob)
+    masked = torch.bernoulli(probability).bool()
+    input_ids[masked] = tokenizer.mask_token_id
+
+    batch["input_ids"] = input_ids
+    batch["labels"] = labels
+    return batch
