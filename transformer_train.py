@@ -23,7 +23,9 @@ from transformers import (
     DistilBertForMaskedLM,
 )
 
-MAX_LEN = 4096
+# blocks are tiny (median 3 instr, p99 ~25); 4096 was copied from longformer and
+# just wasted memory. 512 is already far more than any real block needs.
+MAX_LEN = 512
 
 
 def load_tokenizer(path="asm_tokenizer.json"):
