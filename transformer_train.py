@@ -70,6 +70,20 @@ class AsmMLMDataset(Dataset):
         }
 
 
+def build_model(tokenizer, n_layers=6, dim=384, n_heads=6, max_len=MAX_LEN):
+    """A small DistilBERT masked-LM sized to the assembly vocabulary."""
+    config = DistilBertConfig(
+        vocab_size=tokenizer.vocab_size,
+        max_position_embeddings=max_len,
+        n_layers=n_layers,
+        dim=dim,
+        hidden_dim=dim * 4,
+        n_heads=n_heads,
+        pad_token_id=tokenizer.pad_token_id,
+    )
+    return DistilBertForMaskedLM(config)
+
+
 def bucket_by_length(lines, boundaries=(16, 32, 64, 128)):
     """Group lines into length buckets so batches don't over-pad."""
     buckets = {b: [] for b in boundaries + (float("inf"),)}
