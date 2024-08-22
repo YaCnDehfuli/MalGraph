@@ -103,7 +103,21 @@ def mlm_collator(features, tokenizer, mlm_prob=0.15):
     labels = input_ids.clone()
 
     probability = torch.full(labels.shape, mlm_prob)
-    masked = torch.bernoulli(probability).bool()
+    special = torch.zeros_like(input_ids, dtype=torch.bool)
+    for token_id in (tokenizer.pad_token_id, tokenizer.cls_token_id,
+                     tokenizer.sep_token_id, tokenizer.mask_token_id):
+        if token_id is not None:
+            special |= input_ids == token_id
+    masked = torch.bernoulli(probability).bool() & ~special
+    if not bool(masked.any()):
+        # a batch where nothing got masked has no contributing positions and the
+        # cross-entropy comes back NaN; force one real position.
+        candidates = (~special).nonzero()
+        if len(candidates):
+            row, col = candidates[0]
+            masked[row, col] = True
+    # only masked positions contribute to the loss; everything else is ignored
+    labels[~masked] = -100
     input_ids[masked] = tokenizer.mask_token_id
 
     batch["input_ids"] = input_ids
