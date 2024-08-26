@@ -125,6 +125,18 @@ def mlm_collator(features, tokenizer, mlm_prob=0.15):
     return batch
 
 
+def _make_dummy_corpus(n=16, seed=0):
+    import random
+    rng = random.Random(seed)
+    vocab = ["push rbx", "mov rax, IMM", "call ADDR", "test eax, eax",
+             "je ADDR", "ret", "add rsp, IMM", "xor eax, eax", "cmp rbx, IMM"]
+    lines = []
+    for _ in range(n):
+        k = rng.randint(2, 6)
+        lines.append(" [INS] ".join(rng.choice(vocab) for _ in range(k)))
+    return lines
+
+
 def _lr_at(step, total_steps, base_lr, warmup):
     """Linear warmup then linear decay - the schedule Trainer used to supply."""
     if warmup and step < warmup:
@@ -193,6 +205,27 @@ def train_encoder(lines, tokenizer, output_dir, epochs=3, batch_size=32,
     with open(os.path.join(output_dir, "pretrain_history.json"), "w") as f:
         json.dump(history, f, indent=2)
     return model, history
+
+
+def smoke():
+    """Tiny CPU run over dummy data to prove the pipeline executes end to end."""
+    import tempfile
+    from tokenizer_train import train_tokenizer
+
+    tmp = tempfile.mkdtemp(prefix="asm_smoke_")
+    corpus_path = os.path.join(tmp, "corpus.txt")
+    lines = _make_dummy_corpus()
+    with open(corpus_path, "w") as f:
+        f.write("\n".join(lines) + "\n")
+
+    tok_path = os.path.join(tmp, "tok.json")
+    train_tokenizer(corpus_path, tok_path, vocab_size=200, min_frequency=1)
+    tokenizer = load_tokenizer(tok_path)
+
+    train_encoder(lines, tokenizer, os.path.join(tmp, "enc"), epochs=1,
+                  batch_size=4, max_len=64, n_layers=2, dim=64, n_heads=2,
+                  warmup=2, log_every=0)
+    print("smoke OK")
 
 
 def main(argv=None):
