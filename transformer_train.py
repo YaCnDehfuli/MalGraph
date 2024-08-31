@@ -151,6 +151,16 @@ def save_encoder(model, tokenizer, output_dir):
     tokenizer.save_pretrained(output_dir)
 
 
+def save_checkpoint(path, model, optimizer, epoch, step):
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    torch.save({
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "epoch": epoch,
+        "step": step,
+    }, path)
+
+
 def train_encoder(lines, tokenizer, output_dir, epochs=3, batch_size=32,
                   lr=5e-4, warmup=100, max_len=MAX_LEN, n_layers=6, dim=384,
                   n_heads=6, mlm_prob=0.15, device="cpu", resume=None,
@@ -170,6 +180,13 @@ def train_encoder(lines, tokenizer, output_dir, epochs=3, batch_size=32,
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
 
     start_epoch, global_step = 0, 0
+    if resume and os.path.exists(resume):
+        state = torch.load(resume, map_location=device)
+        model.load_state_dict(state["model"])
+        optimizer.load_state_dict(state["optimizer"])
+        start_epoch, global_step = state["epoch"] + 1, state["step"]
+        print(f"resumed from {resume} at epoch {start_epoch}")
+
     total_steps = max(1, epochs * len(loader))
     history = []
     model.train()
@@ -200,6 +217,8 @@ def train_encoder(lines, tokenizer, output_dir, epochs=3, batch_size=32,
         })
         print(f"epoch {epoch}: mlm_loss {mean_loss:.4f} "
               f"ppl {history[-1]['perplexity']:.2f}")
+        save_checkpoint(os.path.join(output_dir, "encoder_ckpt.pt"),
+                        model, optimizer, epoch, global_step)
 
     save_encoder(model, tokenizer, output_dir)
     with open(os.path.join(output_dir, "pretrain_history.json"), "w") as f:
