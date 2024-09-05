@@ -19,6 +19,11 @@ from transformer_train import load_tokenizer
 transformers.logging.set_verbosity_error()
 
 
+def block_hash(block_line):
+    """Stable id for a canonicalized block sequence (for embedding reuse)."""
+    return hashlib.sha1(block_line.encode("utf-8")).hexdigest()
+
+
 def masked_mean(last_hidden, attention_mask):
     mask = attention_mask.unsqueeze(-1).float()
     summed = (last_hidden * mask).sum(dim=1)
@@ -47,12 +52,21 @@ class BlockEmbedder:
         Chunked: a real binary has tens of thousands of blocks, and tokenizing
         them in one call allocates a single padded batch large enough to OOM.
         """
-        enc = self.tokenizer(
-            block_lines, padding=True, truncation=True,
-            max_length=self.max_len, return_tensors="pt",
-        ).to(self.device)
-        hidden = self.model(**enc).last_hidden_state
-        return masked_mean(hidden, enc["attention_mask"]).cpu()
+        if not block_lines:
+            return torch.empty((0, self.dim))
+        out = []
+        for start in range(0, len(block_lines), self.batch_size):
+            chunk = block_lines[start:start + self.batch_size]
+            # an empty string tokenizes to a zero-length row and breaks padding;
+            # a single space always yields at least one token.
+            chunk = [line if line.strip() else " " for line in chunk]
+            enc = self.tokenizer(
+                chunk, padding=True, truncation=True,
+                max_length=self.max_len, return_tensors="pt",
+            ).to(self.device)
+            hidden = self.model(**enc).last_hidden_state
+            out.append(masked_mean(hidden, enc["attention_mask"]).cpu())
+        return torch.cat(out, dim=0)
 
     def embed_cached(self, block_lines, cache_dir="embeddings_cache"):
         """Embed only blocks not already cached; reuse the rest by hash.
