@@ -42,7 +42,8 @@ class DiffPoolNet(nn.Module):
         z = self.embed_gnn(x, adj, mask)          # node embeddings
         s = self.assign_gnn(x, adj, mask)         # soft cluster assignment (logits)
 
-        # TODO: replace this plain mean with a real differentiable pooling step
-        pooled = self.fc(z.mean(dim=1))           # graph-level function embedding
-        link_loss = ent_loss = z.new_zeros(())
+        # pool nodes into clusters; link + entropy losses regularize the assignment
+        x_pool, _adj_pool, link_loss, ent_loss = dense_diff_pool(z, s, adj, mask)
+
+        pooled = self.fc(x_pool.mean(dim=1))      # graph-level function embedding
         return pooled, link_loss, ent_loss
