@@ -43,7 +43,7 @@ class DiffPoolNet(nn.Module):
         s = self.assign_gnn(x, adj, mask)         # soft cluster assignment (logits)
 
         # pool nodes into clusters; link + entropy losses regularize the assignment
-        x_pool, _adj_pool, link_loss, ent_loss = dense_diff_pool(z, s, adj, mask)
+        x_pool, _adj_pool, link_loss, ent_loss = dense_diff_pool(z, adj, s, mask)
 
         pooled = self.fc(x_pool.mean(dim=1))      # graph-level function embedding
         return pooled, link_loss, ent_loss
