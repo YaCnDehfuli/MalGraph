@@ -47,3 +47,29 @@ class DiffPoolNet(nn.Module):
 
         pooled = self.fc(x_pool.mean(dim=1))      # graph-level function embedding
         return pooled, link_loss, ent_loss
+
+
+class FunctionEncoder(nn.Module):
+    """Encode a sparse PyG CFG into a single function embedding via DiffPool."""
+
+    def __init__(self, in_dim, hidden_dim=128, max_clusters=16):
+        super().__init__()
+        self.input_norm = nn.Identity()
+        self.diffpool = DiffPoolNet(in_dim, hidden_dim, max_clusters)
+        self.proj = nn.Linear(in_dim, hidden_dim)
+        self.in_dim = in_dim
+        self.hidden_dim = hidden_dim
+
+    def forward(self, data):
+        batch = getattr(data, "batch", None)
+        x, mask = to_dense_batch(data.x, batch)
+        adj = to_dense_adj(data.edge_index, batch)
+        pooled, link_loss, ent_loss = self.diffpool(self.input_norm(x), adj, mask)
+        return pooled.squeeze(0), link_loss, ent_loss
+
+    def project_raw(self, x):
+        """Map raw encoder vectors into the pooled function space.
+
+        Used for nodes that have no CFG of their own - imported symbols.
+        """
+        return self.proj(x)
