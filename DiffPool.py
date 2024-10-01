@@ -73,3 +73,32 @@ class FunctionEncoder(nn.Module):
         Used for nodes that have no CFG of their own - imported symbols.
         """
         return self.proj(x)
+
+
+def smoke():
+    """Forward DiffPoolNet on a few random dense graphs; just checks it runs."""
+    in_dim, hidden, clusters = 16, 32, 4
+    net = DiffPoolNet(in_dim, hidden, clusters)
+    for n_nodes in (1, 3, 8, 12):
+        x = torch.randn(1, n_nodes, in_dim)
+        adj = (torch.rand(1, n_nodes, n_nodes) > 0.5).float()
+        mask = torch.ones(1, n_nodes, dtype=torch.bool)
+        pooled, link, ent = net(x, adj, mask)
+        print(f"nodes={n_nodes} -> pooled {tuple(pooled.shape)}, "
+              f"link={link.item():.3f}, ent={ent.item():.3f}")
+
+    # the case that used to NaN: a function whose blocks have no edges at all
+    x = torch.randn(1, 5, in_dim)
+    adj = torch.zeros(1, 5, 5)
+    pooled, link, ent = net(x, adj, torch.ones(1, 5, dtype=torch.bool))
+    assert torch.isfinite(pooled).all() and torch.isfinite(link)
+    print(f"zero-edge graph -> finite pooled/link/ent (link={link.item():.3f})")
+    print("smoke OK")
+
+
+if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--smoke", action="store_true")
+    if ap.parse_args().smoke:
+        smoke()
