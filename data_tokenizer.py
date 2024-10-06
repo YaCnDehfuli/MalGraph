@@ -13,6 +13,9 @@ _DEC = re.compile(r"(?<![\w])[0-9]{2,}(?![\w])")
 
 # imports get their own pseudo-block so the encoder learns API names too; the
 # call graph attaches them as nodes (see fcg.build_call_graph / sample.py).
+API_PREFIX = "[API]"
+
+
 def canonicalize_operands(operands):
     """Mask concrete values so ASLR-shifted equivalents share tokens.
 
@@ -36,6 +39,26 @@ def iter_blocks(report):
     for func in report["xcfg"].values():
         for instructions in func["blocks"].values():
             yield instructions
+
+
+def api_to_line(api_name):
+    """One import -> one corpus line, e.g. 'ws2_32.dll!connect'.
+
+    The '!' and '.' are split by the WordPiece pre-tokenizer's whitespace rule
+    only if we help it, so the module and symbol are separated explicitly.
+    """
+    module, _, symbol = api_name.partition("!")
+    return f"{API_PREFIX} {module} {symbol}".strip()
+
+
+def iter_api_lines(report):
+    """Yield one corpus line per distinct import referenced by the report."""
+    seen = set()
+    for func in report["xcfg"].values():
+        for api_name in func.get("apirefs", {}).values():
+            if api_name not in seen:
+                seen.add(api_name)
+                yield api_to_line(api_name)
 
 
 def extract_block_sequences(report):
@@ -72,6 +95,13 @@ def _stable_hash(line):
     """sha1, not builtin hash(): PYTHONHASHSEED randomizes str hashing, which
     would make the deduped corpus differ run to run."""
     return hashlib.sha1(line.encode("utf-8")).hexdigest()
+
+
+def iter_corpus_lines(report, include_apis=True):
+    """Every training line for one report: basic blocks, then imports."""
+    yield from iter_block_lines(report)
+    if include_apis:
+        yield from iter_api_lines(report)
 
 
 def write_corpus(report, out_path, dedup=True, include_apis=True):
