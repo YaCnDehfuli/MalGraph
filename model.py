@@ -34,6 +34,11 @@ class HierClassifier(nn.Module):
             bin_logit, target,
             pos_weight=None if pos_weight is None
             else bin_logit.new_tensor([pos_weight]))
-        fam_target = torch.tensor([family_idx or 0], device=fam_logits.device)
-        fam_loss = F.cross_entropy(fam_logits.unsqueeze(0), fam_target)
+        # benign samples have no family -> only supervise the family head on
+        # malware, otherwise the head learns a phantom "benign" class
+        if is_malware and family_idx is not None:
+            fam_target = torch.tensor([family_idx], device=fam_logits.device)
+            fam_loss = F.cross_entropy(fam_logits.unsqueeze(0), fam_target)
+        else:
+            fam_loss = bin_logit.new_zeros(())
         return bin_loss + lam_family * fam_loss
