@@ -62,8 +62,15 @@ class FunctionEncoder(nn.Module):
 
     def forward(self, data):
         batch = getattr(data, "batch", None)
-        x, mask = to_dense_batch(data.x, batch)
-        adj = to_dense_adj(data.edge_index, batch)
+        x, mask = to_dense_batch(data.x, batch, max_num_nodes=data.num_nodes)
+        # to_dense_adj sizes itself from the largest node id that appears in an
+        # edge, so a zero-edge function used to come back as an EMPTY tensor:
+        # dense_diff_pool then divided the link loss by adj.numel() == 0 and the
+        # whole batch went NaN. Blocks with no incident edge (a lone `ret` tail)
+        # also silently shrank adj below x. Pinning both to num_nodes fixes the
+        # NaN and the shape mismatch at once, and DenseSAGEConv already clamps
+        # zero degrees, so no special case is needed here at all.
+        adj = to_dense_adj(data.edge_index, batch, max_num_nodes=data.num_nodes)
         pooled, link_loss, ent_loss = self.diffpool(self.input_norm(x), adj, mask)
         return pooled.squeeze(0), link_loss, ent_loss
 

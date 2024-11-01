@@ -92,8 +92,13 @@ def train(report_dir, encoder_dir, labels, families=None, config=None,
 
             cls_loss = clf.loss(bin_logit, fam_logits, s.is_malware, fam_idx,
                                 lam_family=lam_family, pos_weight=pos_weight)
-            aux = s.aux_loss["total"] / max(1, s.aux_loss["n_functions"])
-            loss = cls_loss + lam_link * aux + lam_ent * aux
+            # normalize per function so a 4k-function binary does not drown a
+            # 20-function one, and weight link/entropy with their own lambdas
+            # instead of collapsing both into one blended term
+            n_functions = max(1, s.aux_loss["n_functions"])
+            loss = (cls_loss
+                    + lam_link * s.aux_loss["link"] / n_functions
+                    + lam_ent * s.aux_loss["entropy"] / n_functions)
 
             optimizer.zero_grad()
             loss.backward()
