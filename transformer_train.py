@@ -73,7 +73,9 @@ class AsmMLMDataset(Dataset):
 def build_model(tokenizer, n_layers=6, dim=384, n_heads=6, max_len=MAX_LEN):
     """A small DistilBERT masked-LM sized to the assembly vocabulary."""
     config = DistilBertConfig(
-        vocab_size=tokenizer.vocab_size,
+        # len(), not .vocab_size: added special tokens live past the base vocab
+        # and an undersized embedding table indexes out of range.
+        vocab_size=len(tokenizer),
         max_position_embeddings=max_len,
         n_layers=n_layers,
         dim=dim,

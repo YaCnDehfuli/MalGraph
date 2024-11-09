@@ -15,6 +15,14 @@ def load_model(encoder_dir, checkpoint, device="cpu"):
     in_dim = embedder.dim
     state = torch.load(checkpoint, map_location=device, weights_only=False)
 
+    # a checkpoint trained against a different encoder/tokenizer will silently
+    # produce garbage - refuse to run unless the fingerprints match.
+    expected = state.get("encoder_dim")
+    if expected is not None and expected != in_dim:
+        raise ValueError(
+            f"checkpoint was trained with encoder dim {expected} but the loaded "
+            f"encoder has dim {in_dim}; tokenizer/encoder mismatch")
+
     fenc = FunctionEncoder(
         in_dim,
         hidden_dim=state.get("function_hidden", 128),

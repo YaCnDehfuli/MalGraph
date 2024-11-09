@@ -34,12 +34,16 @@ def masked_mean(last_hidden, attention_mask):
 class BlockEmbedder:
     """Frozen encoder plus an in-memory and on-disk cache keyed by block hash."""
 
-    def __init__(self, encoder_dir, max_len=512, device="cpu", batch_size=64):
+    def __init__(self, encoder_dir, max_len=None, device="cpu", batch_size=64):
         self.tokenizer = load_tokenizer(os.path.join(encoder_dir, "tokenizer.json"))
         self.model = AutoModel.from_pretrained(encoder_dir).to(device).eval()
         for parameter in self.model.parameters():
             parameter.requires_grad_(False)
-        self.max_len = max_len
+        # The window belongs to the encoder, not the caller. Passing a longer
+        # max_len than the checkpoint was trained with indexes past the end of
+        # the position-embedding table, so clamp to what the model actually has.
+        limit = self.model.config.max_position_embeddings
+        self.max_len = limit if max_len is None else min(max_len, limit)
         self.device = device
         self.batch_size = batch_size
         self.dim = self.model.config.dim
