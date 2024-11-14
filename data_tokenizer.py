@@ -124,6 +124,25 @@ def _stream_into(lines, handle, seen):
     return n
 
 
+def write_corpus_from_dir(report_dir, out_path, dedup=True, include_apis=True):
+    """Merge every report in a directory into one corpus file."""
+    import glob
+    import os
+
+    seen = set() if dedup else None
+    total, n_reports = 0, 0
+    with open(out_path, "w") as out:
+        for path in sorted(glob.glob(os.path.join(report_dir, "*.json"))):
+            if os.path.basename(path) == "labels.json":
+                continue
+            report = load_report(path)
+            if "xcfg" not in report:
+                continue
+            total += _stream_into(iter_corpus_lines(report, include_apis), out, seen)
+            n_reports += 1
+    return total, n_reports
+
+
 def main(argv=None):
     import argparse
 

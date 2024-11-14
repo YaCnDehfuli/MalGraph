@@ -99,6 +99,12 @@ def graph_stats(graphs):
     }
 
 
+def visualize_cfg(cfg, title="", save_to=None):
+    """Draw one function CFG. Delegates to `viz` so the layout stays in one place."""
+    from viz import draw_cfg
+    return draw_cfg(cfg, title=title, save_to=save_to)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__ or "SMDA report -> CFGs")
     ap.add_argument("--report", default="examples/sample_pid.json")
