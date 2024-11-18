@@ -8,9 +8,33 @@ pid*/
 # large SMDA reports (keep small fixtures only)
 Graph_PID*_from_*.json
 
+# generated corpora / tokenizers / caches
+corpus*.txt
+asm_tokenizer*
+*.cache/
+embeddings_cache/
+
 # python
 __pycache__/
 *.pyc
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
 
 # stray pip transcript
 =*
+
+# model checkpoints / experiment outputs
+asm_encoder/
+checkpoints/
+results/
+runs/
+reports/
+*.pt
+
+# docs/ is documentation, not generated output: the figures and the measurement
+# data behind them are meant to be tracked.
+!docs/**
