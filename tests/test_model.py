@@ -2,9 +2,9 @@
 import torch
 import pytest
 
-from DiffPool import DiffPoolNet, FunctionEncoder
-from Graph_Loader import cfg_to_pyg
-from model import HierClassifier
+from memory_cfg.DiffPool import DiffPoolNet, FunctionEncoder
+from memory_cfg.Graph_Loader import cfg_to_pyg
+from memory_cfg.model import HierClassifier
 
 
 def _graph(n_nodes, edges, dim=16):
@@ -119,7 +119,7 @@ def test_positive_class_weight_changes_the_loss():
 
 @pytest.mark.parametrize("mlm_prob", [0.0, 0.15, 1.0])
 def test_mlm_collator_masks_and_ignores_the_rest(tiny_dataset, mlm_prob):
-    from transformer_train import (
+    from memory_cfg.transformer_train import (
         AsmMLMDataset, load_tokenizer, mlm_collator,
     )
     import os
@@ -141,7 +141,7 @@ def test_mlm_collator_masks_and_ignores_the_rest(tiny_dataset, mlm_prob):
 
 
 def test_encoder_embeddings_are_deterministic_and_cached(tiny_dataset, tmp_path):
-    from embed_blocks import BlockEmbedder
+    from memory_cfg.embed_blocks import BlockEmbedder
 
     embedder = BlockEmbedder(tiny_dataset["encoder_dir"], max_len=64)
     lines = ["push rbx [INS] ret", "xor eax, eax", "push rbx [INS] ret"]
@@ -157,7 +157,7 @@ def test_encoder_embeddings_are_deterministic_and_cached(tiny_dataset, tmp_path)
 
 
 def test_empty_block_text_does_not_crash_the_embedder(tiny_dataset):
-    from embed_blocks import BlockEmbedder
+    from memory_cfg.embed_blocks import BlockEmbedder
     embedder = BlockEmbedder(tiny_dataset["encoder_dir"], max_len=64)
     out = embedder.embed(["", "   ", "ret"])
     assert out.shape[0] == 3

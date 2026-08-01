@@ -1,7 +1,3 @@
-# disassembly / forensics (used on the lab host)
-smda>=1.13
-volatility3
-
 # graphs
 networkx>=3.0
 
@@ -10,10 +6,17 @@ torch>=2.0
 torch-geometric>=2.5
 transformers>=4.40
 tokenizers>=0.19
-datasets>=2.19
 
 # utils
 numpy
 scikit-learn
 matplotlib
-tqdm
+
+# tests
+pytest>=7
+
+# Disassembly / forensics are NOT listed here on purpose: they are only needed
+# on the lab host that owns the VM and the dumps, they are the hardest part of
+# the stack to install, and requiring them made a clean checkout unable to run
+# anything at all. Install them only when you are actually capturing memory:
+#   pip install "smda>=1.13" volatility3

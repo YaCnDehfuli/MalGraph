@@ -3,14 +3,14 @@ import os
 
 import pytest
 
-from CFG_Extractor import (
+from memory_cfg.CFG_Extractor import (
     build_all_cfgs, extract_functions, extract_functions_parallel, graph_stats,
 )
-from data_tokenizer import (
+from memory_cfg.data_tokenizer import (
     canonicalize_operands, iter_block_lines, iter_api_lines, api_to_line,
     write_corpus, write_corpus_from_dir, INS_SEP,
 )
-from fcg import build_call_graph, call_graph_stats, CALL, API
+from memory_cfg.fcg import build_call_graph, call_graph_stats, CALL, API
 
 
 def test_cfg_matches_the_reports_blockrefs(real_report):
@@ -135,7 +135,7 @@ def test_every_function_is_a_node_even_when_isolated(synthetic_report):
 
 
 def test_figures_render_to_files(real_report, synthetic_report, tmp_path):
-    import viz
+    from memory_cfg import viz
 
     cfgs = build_all_cfgs(real_report, parallel=False)
     biggest = max(cfgs, key=lambda f: cfgs[f].number_of_nodes())
@@ -157,7 +157,7 @@ def test_figures_render_to_files(real_report, synthetic_report, tmp_path):
 
 
 def test_layered_layout_puts_the_entry_on_top(real_report):
-    from viz import layered_layout
+    from memory_cfg.viz import layered_layout
 
     cfgs = build_all_cfgs(real_report, parallel=False)
     cfg = cfgs[max(cfgs, key=lambda f: cfgs[f].number_of_nodes())]

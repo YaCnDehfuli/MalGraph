@@ -4,10 +4,10 @@ import argparse
 
 import torch
 
-from embed_blocks import BlockEmbedder
-from DiffPool import FunctionEncoder
-from model import HierClassifier
-from sample import build_sample
+from .embed_blocks import BlockEmbedder
+from .DiffPool import FunctionEncoder
+from .model import HierClassifier
+from .sample import build_sample
 
 
 def load_model(encoder_dir, checkpoint, device="cpu"):

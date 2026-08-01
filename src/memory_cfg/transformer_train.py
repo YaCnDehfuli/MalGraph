@@ -231,7 +231,7 @@ def train_encoder(lines, tokenizer, output_dir, epochs=3, batch_size=32,
 def smoke():
     """Tiny CPU run over dummy data to prove the pipeline executes end to end."""
     import tempfile
-    from tokenizer_train import train_tokenizer
+    from .tokenizer_train import train_tokenizer
 
     tmp = tempfile.mkdtemp(prefix="asm_smoke_")
     corpus_path = os.path.join(tmp, "corpus.txt")

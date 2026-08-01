@@ -28,20 +28,20 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if os.path.isdir(os.path.join(REPO_ROOT, "src")):
     sys.path.insert(0, os.path.join(REPO_ROOT, "src"))
 
-import synth                                    # noqa: E402
-import viz                                      # noqa: E402
-from config import ExperimentConfig, set_seed        # noqa: E402
-from data_tokenizer import write_corpus_from_dir, load_report  # noqa: E402
-from tokenizer_train import train_tokenizer          # noqa: E402
-from transformer_train import (                      # noqa: E402
+from memory_cfg import synth                                    # noqa: E402
+from memory_cfg import viz                                      # noqa: E402
+from memory_cfg.config import ExperimentConfig, set_seed        # noqa: E402
+from memory_cfg.data_tokenizer import write_corpus_from_dir, load_report  # noqa: E402
+from memory_cfg.tokenizer_train import train_tokenizer          # noqa: E402
+from memory_cfg.transformer_train import (                      # noqa: E402
     load_tokenizer, read_corpus, train_encoder,
 )
-from train import run_experiment                     # noqa: E402
-from eval import score_file, format_report           # noqa: E402
-from baselines import run_baselines                  # noqa: E402
-from predict import predict                          # noqa: E402
-from CFG_Extractor import build_all_cfgs, graph_stats  # noqa: E402
-from fcg import build_call_graph, call_graph_stats   # noqa: E402
+from memory_cfg.train import run_experiment                     # noqa: E402
+from memory_cfg.eval import score_file, format_report           # noqa: E402
+from memory_cfg.baselines import run_baselines                  # noqa: E402
+from memory_cfg.predict import predict                          # noqa: E402
+from memory_cfg.CFG_Extractor import build_all_cfgs, graph_stats  # noqa: E402
+from memory_cfg.fcg import build_call_graph, call_graph_stats   # noqa: E402
 
 
 def _banner(step, text):

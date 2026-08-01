@@ -5,9 +5,9 @@ import json
 import pytest
 import torch
 
-from config import ExperimentConfig
-from train import make_split, run_experiment, families_from_labels
-from eval import binary_metrics, family_metrics, score_rows, score_file
+from memory_cfg.config import ExperimentConfig
+from memory_cfg.train import make_split, run_experiment, families_from_labels
+from memory_cfg.eval import binary_metrics, family_metrics, score_rows, score_file
 
 
 def _run_config(tiny_dataset, output_dir, epochs=2):
@@ -75,7 +75,7 @@ def test_training_loss_is_finite_and_moves(tiny_dataset, tmp_path):
 
 
 def test_checkpoint_round_trips_through_predict(tiny_dataset, tmp_path):
-    from predict import predict, load_model
+    from memory_cfg.predict import predict, load_model
 
     output_dir = tmp_path / "run"
     run_experiment(_run_config(tiny_dataset, output_dir),
@@ -100,7 +100,7 @@ def test_checkpoint_round_trips_through_predict(tiny_dataset, tmp_path):
 
 def test_predict_refuses_a_checkpoint_from_a_different_encoder(tiny_dataset,
                                                                tmp_path):
-    from predict import load_model
+    from memory_cfg.predict import load_model
 
     output_dir = tmp_path / "run"
     run_experiment(_run_config(tiny_dataset, output_dir),
@@ -117,10 +117,10 @@ def test_predict_refuses_a_checkpoint_from_a_different_encoder(tiny_dataset,
 
 
 def test_sample_includes_api_nodes_in_the_call_graph(tiny_dataset):
-    from embed_blocks import BlockEmbedder
-    from DiffPool import FunctionEncoder
-    from sample import build_sample
-    from data_tokenizer import load_report
+    from memory_cfg.embed_blocks import BlockEmbedder
+    from memory_cfg.DiffPool import FunctionEncoder
+    from memory_cfg.sample import build_sample
+    from memory_cfg.data_tokenizer import load_report
 
     name = sorted(tiny_dataset["labels"])[0]
     report = load_report(os.path.join(tiny_dataset["reports_dir"], name))
@@ -197,7 +197,7 @@ def test_config_tolerates_unknown_keys(tmp_path):
 
 
 def test_baselines_run_on_the_same_split(tiny_dataset, tmp_path):
-    from baselines import run_baselines
+    from memory_cfg.baselines import run_baselines
 
     output_dir = tmp_path / "run"
     run_experiment(_run_config(tiny_dataset, output_dir),
@@ -212,21 +212,21 @@ def test_baselines_run_on_the_same_split(tiny_dataset, tmp_path):
 
 
 def test_data_loader_rejects_a_bad_mode(tiny_dataset):
-    from Data_Loader import DataLoader
+    from memory_cfg.Data_Loader import DataLoader
     with pytest.raises(ValueError):
         DataLoader(tiny_dataset["reports_dir"], mode="sideways")
 
 
 def test_data_loader_skips_the_label_manifest(tiny_dataset):
-    from Data_Loader import DataLoader
+    from memory_cfg.Data_Loader import DataLoader
     loader = DataLoader(tiny_dataset["reports_dir"], mode="spatial")
     assert len(loader) == len(tiny_dataset["labels"])
     assert all("labels.json" not in path for path in loader.reports)
 
 
 def test_temporal_mode_orders_by_capture_timestamp(tiny_dataset):
-    from Data_Loader import DataLoader
-    from data_tokenizer import load_report
+    from memory_cfg.Data_Loader import DataLoader
+    from memory_cfg.data_tokenizer import load_report
 
     loader = DataLoader(tiny_dataset["reports_dir"], mode="temporal")
     stamps = [load_report(p).get("timestamp", "") for p in loader.reports]

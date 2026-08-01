@@ -19,12 +19,12 @@ import argparse
 
 import torch
 
-from config import ExperimentConfig, set_seed
-from Data_Loader import DataLoader
-from embed_blocks import BlockEmbedder
-from DiffPool import FunctionEncoder
-from model import HierClassifier
-from sample import build_sample
+from .config import ExperimentConfig, set_seed
+from .Data_Loader import DataLoader
+from .embed_blocks import BlockEmbedder
+from .DiffPool import FunctionEncoder
+from .model import HierClassifier
+from .sample import build_sample
 
 
 def load_labels(path):

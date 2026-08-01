@@ -1,8 +1,8 @@
 """The synthetic generator must produce reports the real pipeline accepts."""
 import json
 
-import synth
-from CFG_Extractor import build_all_cfgs
+from memory_cfg import synth
+from memory_cfg.CFG_Extractor import build_all_cfgs
 
 
 REQUIRED_FUNCTION_KEYS = {"offset", "blocks", "apirefs", "stringrefs",

@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memory-cfg-malware-classification"
+version = "0.2.0"
+description = "Research code for malware classification from memory-derived CFGs and call graphs."
+requires-python = ">=3.10"
+readme = "README.md"
+license = { file = "LICENSE" }
+keywords = ["memory-forensics", "malware", "control-flow-graph",
+            "graph-neural-network", "volatility", "smda"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+]
+dependencies = [
+    "networkx>=3.0",
+    "torch>=2.0",
+    "torch-geometric>=2.5",
+    "transformers>=4.40",
+    "tokenizers>=0.19",
+    "numpy",
+    "scikit-learn",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+# only needed on the lab host that owns the VM and the dumps
+capture = ["smda>=1.13", "volatility3"]
+dev = ["pytest>=7"]
+
+[project.urls]
+Repository = "https://github.com/YaCnDehfuli/Malware-Detection-using-Memory-Dump"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]

@@ -14,10 +14,10 @@ from typing import Optional
 
 import torch
 
-from CFG_Extractor import build_all_cfgs
-from Graph_Loader import cfg_to_pyg
-from data_tokenizer import canonicalize_operands, api_to_line, INS_SEP
-from fcg import build_call_graph
+from .CFG_Extractor import build_all_cfgs
+from .Graph_Loader import cfg_to_pyg
+from .data_tokenizer import canonicalize_operands, api_to_line, INS_SEP
+from .fcg import build_call_graph
 
 
 @dataclass

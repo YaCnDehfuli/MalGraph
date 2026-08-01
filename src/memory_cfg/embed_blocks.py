@@ -10,7 +10,7 @@ import torch
 import transformers
 from transformers import AutoModel
 
-from transformer_train import load_tokenizer
+from .transformer_train import load_tokenizer
 
 # We deliberately load a DistilBertModel out of a DistilBertForMaskedLM
 # directory, so the unused MLM head weights are reported as "UNEXPECTED" on

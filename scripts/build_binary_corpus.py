@@ -218,7 +218,7 @@ def build(out_dir, limit=32, sources=DEFAULT_SOURCES, min_size=15_000,
     with open(os.path.join(out_dir, "packing_stats.json"), "w") as handle:
         json.dump(summary, handle, indent=2)
     if figure and pairs:
-        import viz
+        from memory_cfg import viz
         viz.draw_recovery_comparison(pairs, save_to=figure)
         log(f"figure: {figure}")
     shutil.rmtree(work_dir, ignore_errors=True)

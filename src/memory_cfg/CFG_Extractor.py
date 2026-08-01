@@ -101,7 +101,7 @@ def graph_stats(graphs):
 
 def visualize_cfg(cfg, title="", save_to=None):
     """Draw one function CFG. Delegates to `viz` so the layout stays in one place."""
-    from viz import draw_cfg
+    from .viz import draw_cfg
     return draw_cfg(cfg, title=title, save_to=save_to)
 
 

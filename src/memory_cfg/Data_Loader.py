@@ -8,7 +8,7 @@ Two modes are supported:
 import os
 import glob
 
-from CFG_Extractor import load_smda_json
+from .CFG_Extractor import load_smda_json
 
 # the label manifest lives next to the reports; it is not a report
 MANIFEST_NAMES = {"labels.json", "manifest.json", "split.json"}

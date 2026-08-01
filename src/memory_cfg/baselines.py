@@ -12,9 +12,9 @@ import json
 import argparse
 from collections import Counter
 
-from data_tokenizer import iter_blocks, load_report
-from CFG_Extractor import build_all_cfgs
-from fcg import build_call_graph
+from .data_tokenizer import iter_blocks, load_report
+from .CFG_Extractor import build_all_cfgs
+from .fcg import build_call_graph
 
 
 def opcode_ngram_features(report, n=2):
@@ -130,7 +130,7 @@ def _scores(clf, X):
 
 def run_baselines(report_dir, split_path, out_path=None):
     """Train both baselines on the split's train half, score its test half."""
-    from eval import binary_metrics
+    from .eval import binary_metrics
 
     with open(split_path) as f:
         split = json.load(f)
