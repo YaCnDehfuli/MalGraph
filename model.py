@@ -13,16 +13,24 @@ from torch_geometric.nn import SAGEConv
 class HierClassifier(nn.Module):
     def __init__(self, in_dim, hidden_dim, num_families, dropout=0.2):
         super().__init__()
+        self.input_norm = nn.LayerNorm(in_dim)
         self.conv1 = SAGEConv(in_dim, hidden_dim)
         self.conv2 = SAGEConv(hidden_dim, hidden_dim)
         self.dropout = dropout
-        self.bin_head = nn.Linear(hidden_dim, 1)
-        self.fam_head = nn.Linear(hidden_dim, num_families)
+        # mean and max readouts answer different questions: "what does this
+        # binary mostly look like" versus "does it contain anything extreme".
+        # Malicious behaviour usually lives in a handful of functions, so the
+        # mean alone dilutes it away in a 4k-function binary.
+        self.readout_norm = nn.LayerNorm(hidden_dim * 2)
+        self.bin_head = nn.Linear(hidden_dim * 2, 1)
+        self.fam_head = nn.Linear(hidden_dim * 2, num_families)
 
     def forward(self, node_embeddings, edge_index):
-        x = F.relu(self.conv1(node_embeddings, edge_index))
+        x = F.relu(self.conv1(self.input_norm(node_embeddings), edge_index))
+        x = F.dropout(x, p=self.dropout, training=self.training)
         x = F.relu(self.conv2(x, edge_index))
-        g = x.mean(dim=0)                       # single-binary graph readout
+        g = self.readout_norm(
+            torch.cat([x.mean(dim=0), x.max(dim=0).values], dim=-1))
         return self.bin_head(g), self.fam_head(g)
 
     def loss(self, bin_logit, fam_logits, is_malware, family_idx,

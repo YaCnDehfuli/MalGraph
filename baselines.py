@@ -100,8 +100,21 @@ def build_graph_matrix(reports):
 
 
 def fit_logreg(X, y):
+    """Standardize, then fit.
+
+    Without the scaler this is not a fair baseline: the n-gram features are
+    normalized frequencies (order 1e-3) and the graph features mix counts in the
+    thousands with densities near 1. Logistic regression then produced a perfect
+    *ranking* (AUROC 1.0) whose probabilities never crossed 0.5, so F1 came out
+    at 0.0 and the comparison was meaningless. The scaler is fitted on the
+    training rows only and reused for test, so nothing leaks.
+    """
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
     from sklearn.linear_model import LogisticRegression
-    clf = LogisticRegression(max_iter=1000)
+
+    clf = make_pipeline(StandardScaler(),
+                        LogisticRegression(max_iter=2000, class_weight="balanced"))
     clf.fit(X, y)
     return clf
 

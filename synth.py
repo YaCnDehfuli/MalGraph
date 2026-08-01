@@ -45,6 +45,10 @@ class Profile:
 # (which erases addresses and immediates) because the signal lives in the
 # mnemonics and registers, which is exactly what the encoder gets to see.
 PROFILES = (
+    # Four benign profiles, not one: a single benign class would make "benign"
+    # mean "one particular program", and it would leave the corpus 80% malicious
+    # so the majority-class guess already scores 0.8. `benign_net` exists
+    # specifically so "touches the network" is not a free separating rule.
     Profile(
         name="benign_crt",
         is_malware=0,

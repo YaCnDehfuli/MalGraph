@@ -54,9 +54,10 @@ class FunctionEncoder(nn.Module):
 
     def __init__(self, in_dim, hidden_dim=128, max_clusters=16):
         super().__init__()
-        self.input_norm = nn.Identity()
+        # raw masked-mean encoder vectors arrive with very uneven scale across
+        # dimensions; normalizing them first is worth more than any extra layer
+        self.input_norm = nn.LayerNorm(in_dim)
         self.diffpool = DiffPoolNet(in_dim, hidden_dim, max_clusters)
-        self.proj = nn.Linear(in_dim, hidden_dim)
         self.in_dim = in_dim
         self.hidden_dim = hidden_dim
 
@@ -74,12 +75,18 @@ class FunctionEncoder(nn.Module):
         pooled, link_loss, ent_loss = self.diffpool(self.input_norm(x), adj, mask)
         return pooled.squeeze(0), link_loss, ent_loss
 
-    def project_raw(self, x):
-        """Map raw encoder vectors into the pooled function space.
+    def encode_isolated(self, x):
+        """Embed nodes that have no CFG of their own - imported symbols.
 
-        Used for nodes that have no CFG of their own - imported symbols.
+        They go through the SAME pooling head as real functions, as one-node
+        graphs with a self-loop. An earlier version ran them through a separate
+        `nn.Linear`, which quietly put half the call graph's node features in a
+        different space from the other half.
         """
-        return self.proj(x)
+        x = self.input_norm(x).unsqueeze(1)          # [K, 1, F]
+        adj = x.new_ones((x.size(0), 1, 1))          # self-loop
+        pooled, _link, _ent = self.diffpool(x, adj)
+        return pooled
 
 
 def smoke():

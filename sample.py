@@ -46,11 +46,18 @@ def block_line(instructions):
 
 def _function_vectors(cfgs, embedder, function_encoder, cache_dir):
     """Embed every block in the binary once, then pool each CFG."""
-    by_function = {}
+    # one embedder call for the whole binary: embedding per function re-pays the
+    # tokenizer/model call overhead thousands of times on a real report.
+    order, lines = [], []
     for offset, cfg in cfgs.items():
-        lines = {n: block_line(i or []) for n, i in cfg.nodes(data="instructions")}
-        vectors = embedder.embed(list(lines.values()))
-        by_function[offset] = dict(zip(lines, vectors))
+        for node, instructions in cfg.nodes(data="instructions"):
+            order.append((offset, node))
+            lines.append(block_line(instructions or []))
+    vectors = embedder.embed_cached(lines, cache_dir=cache_dir)
+
+    by_function = {offset: {} for offset in cfgs}
+    for (offset, node), vector in zip(order, vectors):
+        by_function[offset][node] = vector
 
     func_vecs, offsets = [], []
     link_total = ent_total = None
@@ -80,6 +87,18 @@ def build_sample(report, embedder, function_encoder, is_malware, family=None,
     row = {offset: i for i, offset in enumerate(offsets)}
     node_ids = list(offsets)
 
+    api_nodes = [n for n, is_api in fcg.nodes(data="is_api") if is_api]
+    if api_nodes:
+        api_lines = [api_to_line(fcg.nodes[n]["api_name"]) for n in api_nodes]
+        api_vecs = embedder.embed_cached(api_lines, cache_dir=cache_dir)
+        # an import has no CFG, so it is pooled as a one-node graph through the
+        # same head the functions use - same weights, same space
+        api_vecs = function_encoder.encode_isolated(api_vecs)
+        for node, vector in zip(api_nodes, api_vecs):
+            row[node] = len(node_ids)
+            node_ids.append(node)
+            func_vecs.append(vector)
+
     node_embeddings = torch.stack(func_vecs)
     edges = [[row[u], row[v]] for u, v in fcg.edges() if u in row and v in row]
     edge_index = (torch.tensor(edges, dtype=torch.long).t().contiguous()
@@ -93,8 +112,11 @@ def build_sample(report, embedder, function_encoder, is_malware, family=None,
         num_functions=len(offsets),
         is_malware=is_malware,
         family=family,
+        # kept apart, not pre-summed: train.py weights link and entropy with
+        # their own lambdas, which a single blended scalar made impossible.
         aux_loss={
-            "total": zero if link_total is None else link_total + ent_total,
+            "link": zero if link_total is None else link_total,
+            "entropy": zero if ent_total is None else ent_total,
             "n_functions": len(offsets),
         },
     )

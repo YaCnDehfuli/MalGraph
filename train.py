@@ -150,13 +150,19 @@ def train(report_dir, encoder_dir, labels, families=None, config=None,
     pos_weight = n_neg / max(1, n_pos)
 
     order = list(names) if names is not None else sorted(labels)
+    rng = random.Random(config.seed)
     parameters = list(fenc.parameters()) + list(clf.parameters())
 
     history = []
     for epoch in range(epochs):
         fenc.train()
         clf.train()
+        # a fixed alphabetical order means every epoch sees the classes in the
+        # same runs, which is exactly the correlation SGD should not get
+        rng.shuffle(order)
         total, n_seen, correct, started = 0.0, 0, 0, time.time()
+        optimizer.zero_grad()
+        pending = 0
 
         for batch in DataLoader(report_dir, mode="spatial", names=order):
             meta = labels[batch["name"]]
@@ -177,15 +183,25 @@ def train(report_dir, encoder_dir, labels, families=None, config=None,
                     + lam_link * s.aux_loss["link"] / n_functions
                     + lam_ent * s.aux_loss["entropy"] / n_functions)
 
-            optimizer.zero_grad()
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(parameters, 5.0)
-            optimizer.step()
+            # one binary is one graph, so a "batch" has to be accumulated by
+            # hand; stepping per sample made the gradient pure noise
+            (loss / batch_size).backward()
+            pending += 1
+            if pending == batch_size:
+                torch.nn.utils.clip_grad_norm_(parameters, 5.0)
+                optimizer.step()
+                optimizer.zero_grad()
+                pending = 0
 
             total += float(loss.detach())
             n_seen += 1
             correct += int((float(torch.sigmoid(bin_logit.detach())) >= 0.5)
                            == bool(meta["is_malware"]))
+
+        if pending:
+            torch.nn.utils.clip_grad_norm_(parameters, 5.0)
+            optimizer.step()
+            optimizer.zero_grad()
 
         mean = total / max(1, n_seen)
         accuracy = correct / max(1, n_seen)
