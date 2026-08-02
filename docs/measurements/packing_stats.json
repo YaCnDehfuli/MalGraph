@@ -1,0 +1,535 @@
+{
+  "pairs": 32,
+  "upx_level": "-1",
+  "plain_totals": {
+    "functions": 5524,
+    "blocks": 39756,
+    "instructions": 188726,
+    "api_refs": 12319
+  },
+  "packed_totals": {
+    "functions": 298,
+    "blocks": 1589,
+    "instructions": 8673,
+    "api_refs": 0
+  },
+  "recovered_function_ratio": 0.05394641564083997,
+  "recovered_block_ratio": 0.0399688097394104,
+  "recovered_instruction_ratio": 0.04595551222407088,
+  "median_functions_plain": 140,
+  "median_functions_packed": 5,
+  "per_binary": [
+    {
+      "binary": "[",
+      "size": 55744,
+      "plain": {
+        "functions": 136,
+        "blocks": 1664,
+        "instructions": 7021,
+        "api_refs": 346
+      },
+      "packed": {
+        "functions": 10,
+        "blocks": 56,
+        "instructions": 251,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "apt",
+      "size": 18824,
+      "plain": {
+        "functions": 56,
+        "blocks": 86,
+        "instructions": 544,
+        "api_refs": 57
+      },
+      "packed": {
+        "functions": 58,
+        "blocks": 115,
+        "instructions": 703,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "apt-cache",
+      "size": 88544,
+      "plain": {
+        "functions": 269,
+        "blocks": 2615,
+        "instructions": 12862,
+        "api_refs": 1161
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 37,
+        "instructions": 200,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "apt-cdrom",
+      "size": 27104,
+      "plain": {
+        "functions": 125,
+        "blocks": 346,
+        "instructions": 1599,
+        "api_refs": 208
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 41,
+        "instructions": 254,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "apt-config",
+      "size": 31120,
+      "plain": {
+        "functions": 126,
+        "blocks": 570,
+        "instructions": 2604,
+        "api_refs": 258
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 39,
+        "instructions": 233,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "apt-get",
+      "size": 51680,
+      "plain": {
+        "functions": 208,
+        "blocks": 894,
+        "instructions": 4467,
+        "api_refs": 464
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 37,
+        "instructions": 191,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "apt-mark",
+      "size": 55776,
+      "plain": {
+        "functions": 244,
+        "blocks": 1402,
+        "instructions": 6964,
+        "api_refs": 498
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 39,
+        "instructions": 267,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "arch",
+      "size": 35336,
+      "plain": {
+        "functions": 104,
+        "blocks": 662,
+        "instructions": 2865,
+        "api_refs": 167
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 39,
+        "instructions": 228,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "b2sum",
+      "size": 55816,
+      "plain": {
+        "functions": 155,
+        "blocks": 1064,
+        "instructions": 6492,
+        "api_refs": 298
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 39,
+        "instructions": 244,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "base32",
+      "size": 39432,
+      "plain": {
+        "functions": 134,
+        "blocks": 976,
+        "instructions": 4210,
+        "api_refs": 231
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 47,
+        "instructions": 263,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "base64",
+      "size": 39432,
+      "plain": {
+        "functions": 134,
+        "blocks": 961,
+        "instructions": 4156,
+        "api_refs": 231
+      },
+      "packed": {
+        "functions": 6,
+        "blocks": 53,
+        "instructions": 289,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "basename",
+      "size": 35336,
+      "plain": {
+        "functions": 101,
+        "blocks": 730,
+        "instructions": 3094,
+        "api_refs": 178
+      },
+      "packed": {
+        "functions": 7,
+        "blocks": 43,
+        "instructions": 242,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "basenc",
+      "size": 47624,
+      "plain": {
+        "functions": 179,
+        "blocks": 1270,
+        "instructions": 5672,
+        "api_refs": 267
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 39,
+        "instructions": 243,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "bc",
+      "size": 93000,
+      "plain": {
+        "functions": 178,
+        "blocks": 2163,
+        "instructions": 10932,
+        "api_refs": 397
+      },
+      "packed": {
+        "functions": 8,
+        "blocks": 46,
+        "instructions": 247,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "bdftopcf",
+      "size": 43272,
+      "plain": {
+        "functions": 92,
+        "blocks": 1267,
+        "instructions": 6267,
+        "api_refs": 154
+      },
+      "packed": {
+        "functions": 6,
+        "blocks": 40,
+        "instructions": 199,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "bunzip2",
+      "size": 39296,
+      "plain": {
+        "functions": 140,
+        "blocks": 743,
+        "instructions": 3266,
+        "api_refs": 321
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 41,
+        "instructions": 233,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "busctl",
+      "size": 96864,
+      "plain": {
+        "functions": 421,
+        "blocks": 2144,
+        "instructions": 10438,
+        "api_refs": 1132
+      },
+      "packed": {
+        "functions": 8,
+        "blocks": 41,
+        "instructions": 222,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "bzcat",
+      "size": 39296,
+      "plain": {
+        "functions": 140,
+        "blocks": 743,
+        "instructions": 3266,
+        "api_refs": 321
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 41,
+        "instructions": 233,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "bzip2",
+      "size": 39296,
+      "plain": {
+        "functions": 140,
+        "blocks": 743,
+        "instructions": 3266,
+        "api_refs": 321
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 41,
+        "instructions": 233,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "bzip2recover",
+      "size": 18736,
+      "plain": {
+        "functions": 59,
+        "blocks": 183,
+        "instructions": 929,
+        "api_refs": 73
+      },
+      "packed": {
+        "functions": 60,
+        "blocks": 213,
+        "instructions": 1111,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "cat",
+      "size": 39384,
+      "plain": {
+        "functions": 139,
+        "blocks": 896,
+        "instructions": 3834,
+        "api_refs": 233
+      },
+      "packed": {
+        "functions": 7,
+        "blocks": 41,
+        "instructions": 202,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "chcon",
+      "size": 59912,
+      "plain": {
+        "functions": 245,
+        "blocks": 1892,
+        "instructions": 8298,
+        "api_refs": 600
+      },
+      "packed": {
+        "functions": 6,
+        "blocks": 38,
+        "instructions": 192,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "chgrp",
+      "size": 59912,
+      "plain": {
+        "functions": 208,
+        "blocks": 1763,
+        "instructions": 7635,
+        "api_refs": 456
+      },
+      "packed": {
+        "functions": 7,
+        "blocks": 45,
+        "instructions": 211,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "chmod",
+      "size": 55816,
+      "plain": {
+        "functions": 193,
+        "blocks": 1728,
+        "instructions": 7505,
+        "api_refs": 412
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 37,
+        "instructions": 192,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "choom",
+      "size": 22912,
+      "plain": {
+        "functions": 97,
+        "blocks": 274,
+        "instructions": 1268,
+        "api_refs": 152
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 37,
+        "instructions": 191,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "chown",
+      "size": 59912,
+      "plain": {
+        "functions": 214,
+        "blocks": 1876,
+        "instructions": 8267,
+        "api_refs": 501
+      },
+      "packed": {
+        "functions": 8,
+        "blocks": 52,
+        "instructions": 242,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "chrt",
+      "size": 31104,
+      "plain": {
+        "functions": 130,
+        "blocks": 374,
+        "instructions": 1876,
+        "api_refs": 227
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 41,
+        "instructions": 241,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "cksum",
+      "size": 104984,
+      "plain": {
+        "functions": 228,
+        "blocks": 1804,
+        "instructions": 12597,
+        "api_refs": 403
+      },
+      "packed": {
+        "functions": 7,
+        "blocks": 47,
+        "instructions": 242,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "cmp",
+      "size": 43408,
+      "plain": {
+        "functions": 178,
+        "blocks": 1215,
+        "instructions": 5447,
+        "api_refs": 384
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 37,
+        "instructions": 191,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "comm",
+      "size": 39440,
+      "plain": {
+        "functions": 132,
+        "blocks": 856,
+        "instructions": 3980,
+        "api_refs": 240
+      },
+      "packed": {
+        "functions": 8,
+        "blocks": 49,
+        "instructions": 275,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "cp",
+      "size": 141848,
+      "plain": {
+        "functions": 433,
+        "blocks": 4601,
+        "instructions": 21556,
+        "api_refs": 1295
+      },
+      "packed": {
+        "functions": 5,
+        "blocks": 37,
+        "instructions": 200,
+        "api_refs": 0
+      }
+    },
+    {
+      "binary": "csplit",
+      "size": 51720,
+      "plain": {
+        "functions": 186,
+        "blocks": 1251,
+        "instructions": 5549,
+        "api_refs": 333
+      },
+      "packed": {
+        "functions": 7,
+        "blocks": 41,
+        "instructions": 208,
+        "api_refs": 0
+      }
+    }
+  ]
+}

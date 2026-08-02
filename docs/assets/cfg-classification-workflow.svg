@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="560" viewBox="0 0 1240 560" role="img" aria-labelledby="title desc">
+  <title id="title">Memory-dump CFG malware-classification workflow</title>
+  <desc id="desc">An isolated VM produces a memory dump. Volatility and SMDA recover a report, then CFGs, assembly embeddings, DiffPool function vectors, an inter-function graph, and a classifier produce malware and family predictions.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#10151b"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#122239"/>
+      <stop offset="1" stop-color="#15251f"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8fb1c8"/>
+    </marker>
+    <style>
+      .bg { fill: url(#bg); }
+      .card { fill: url(#card); stroke: #304961; stroke-width: 1.5; rx: 12; }
+      .title { fill: #eff7ff; font: 700 24px Arial, sans-serif; }
+      .label { fill: #eff7ff; font: 700 17px Arial, sans-serif; }
+      .small { fill: #aec2d2; font: 13px Arial, sans-serif; }
+      .tiny { fill: #8ca5b8; font: 12px Arial, sans-serif; }
+      .line { stroke: #8fb1c8; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .node { fill: #1fb6ff; stroke: #cdf3ff; stroke-width: 1.2; }
+      .edge { stroke: #6f8ea6; stroke-width: 1.5; fill: none; }
+      .chip { fill: #102d3b; stroke: #28627c; stroke-width: 1; rx: 8; }
+      .warn { fill: #ffd166; }
+      .ok { fill: #33d17a; }
+      .bad { fill: #ff6b6b; }
+    </style>
+  </defs>
+  <rect class="bg" width="1240" height="560"/>
+  <text class="title" x="42" y="54">Memory-Dump CFG And Graph-Based Malware Classification</text>
+  <text class="small" x="42" y="80">Runtime memory capture to static graph recovery, representation learning, and hierarchical binary/family prediction.</text>
+
+  <rect class="card" x="42" y="124" width="158" height="146"/>
+  <text class="label" x="64" y="158">Isolated VM</text>
+  <text class="small" x="64" y="186">launch sample</text>
+  <text class="small" x="64" y="208">dump memory</text>
+  <text class="small" x="64" y="230">revert snapshot</text>
+  <circle class="warn" cx="164" cy="152" r="7"/>
+
+  <path class="line" d="M200 197 H258"/>
+
+  <rect class="card" x="258" y="124" width="164" height="146"/>
+  <text class="label" x="280" y="158">Volatility</text>
+  <text class="small" x="280" y="186">PsList --dump</text>
+  <text class="small" x="280" y="208">carve target PID</text>
+  <text class="tiny" x="280" y="232">process .dmp</text>
+
+  <path class="line" d="M422 197 H480"/>
+
+  <rect class="card" x="480" y="124" width="164" height="146"/>
+  <text class="label" x="502" y="158">SMDA</text>
+  <text class="small" x="502" y="186">static disassembly</text>
+  <text class="small" x="502" y="208">xcfg JSON</text>
+  <rect class="chip" x="502" y="225" width="86" height="24"/>
+  <text class="tiny" x="518" y="242">report</text>
+
+  <path class="line" d="M644 197 H702"/>
+
+  <rect class="card" x="702" y="124" width="190" height="146"/>
+  <text class="label" x="724" y="158">Function CFGs</text>
+  <text class="small" x="724" y="186">basic blocks</text>
+  <text class="small" x="724" y="208">directed edges</text>
+  <g transform="translate(826 222)">
+    <path class="edge" d="M0 0 L28 -18 L58 4 L28 24 Z"/>
+    <circle class="node" cx="0" cy="0" r="6"/>
+    <circle class="node" cx="28" cy="-18" r="6"/>
+    <circle class="node" cx="58" cy="4" r="6"/>
+    <circle class="node" cx="28" cy="24" r="6"/>
+  </g>
+
+  <path class="line" d="M892 197 H950"/>
+
+  <rect class="card" x="950" y="124" width="206" height="146"/>
+  <text class="label" x="972" y="158">Assembly encoder</text>
+  <text class="small" x="972" y="186">WordPiece tokenizer</text>
+  <text class="small" x="972" y="208">DistilBERT MLM</text>
+  <text class="tiny" x="972" y="232">block vectors cached</text>
+
+  <path class="line" d="M1053 270 V326 H178 V358"/>
+
+  <rect class="card" x="42" y="358" width="206" height="142"/>
+  <text class="label" x="64" y="392">DiffPool</text>
+  <text class="small" x="64" y="420">CFG nodes -> clusters</text>
+  <text class="small" x="64" y="442">one vector/function</text>
+  <circle class="node" cx="184" cy="411" r="7"/>
+  <circle class="node" cx="204" cy="435" r="7"/>
+  <circle class="ok" cx="194" cy="454" r="10"/>
+
+  <path class="line" d="M248 429 H320"/>
+
+  <rect class="card" x="320" y="358" width="232" height="142"/>
+  <text class="label" x="342" y="392">Inter-function graph</text>
+  <text class="small" x="342" y="420">call / jump / API / unresolved</text>
+  <g transform="translate(468 440)">
+    <path class="edge" d="M-42 -8 H0 L38 -30 M0 0 L42 24"/>
+    <circle class="node" cx="-42" cy="-8" r="7"/>
+    <circle class="node" cx="0" cy="0" r="7"/>
+    <circle class="node" cx="38" cy="-30" r="7"/>
+    <circle class="bad" cx="42" cy="24" r="7"/>
+  </g>
+
+  <path class="line" d="M552 429 H624"/>
+
+  <rect class="card" x="624" y="358" width="224" height="142"/>
+  <text class="label" x="646" y="392">Graph classifier</text>
+  <text class="small" x="646" y="420">SAGEConv readout</text>
+  <text class="small" x="646" y="442">binary head</text>
+  <text class="small" x="646" y="464">family head</text>
+
+  <path class="line" d="M848 429 H920"/>
+
+  <rect class="card" x="920" y="358" width="236" height="142"/>
+  <text class="label" x="942" y="392">Prediction artifacts</text>
+  <text class="small" x="942" y="420">malware probability</text>
+  <text class="small" x="942" y="442">family label if malicious</text>
+  <text class="tiny" x="942" y="466">AUROC / AUPRC / F1 / MCC</text>
+
+  <text class="tiny" x="42" y="536">Boundary: recovered graphs are static disassembly of captured bytes, not a dynamic execution trace.</text>
+</svg>

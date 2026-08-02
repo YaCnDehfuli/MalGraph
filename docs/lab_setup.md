@@ -13,7 +13,7 @@ KVM/QEMU (libvirt). Notes to my future self so I can rebuild it.
 ```
 virsh snapshot-create-as --domain VM1_win10 clean_state "clean baseline"
 ```
-`Run.sh` reverts to this after each capture.
+`scripts/capture_memory.sh` reverts to this after each capture.
 
 ## Capture
 - The sample is started with `Start-Process` over SSH, given a short dwell time, then the
