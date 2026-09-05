@@ -1,9 +1,10 @@
 # Memory-Dump CFG and Graph-Based Malware Classification
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/ML-PyTorch_Geometric-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Volatility 3](https://img.shields.io/badge/Forensics-Volatility_3-111827)](https://volatilityfoundation.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/YaCnDehfuli/MalGraph)](https://github.com/YaCnDehfuli/MalGraph/releases)
 
 **Technical focus:** memory forensics · graph neural networks · control-flow graphs · malware classification · reproducible evaluation
 

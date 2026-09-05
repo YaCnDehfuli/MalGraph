@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "memory-cfg-malware-classification"
-version = "0.2.0"
+version = "1.0.0"
 description = "Research code for malware classification from memory-derived CFGs and call graphs."
 requires-python = ">=3.10"
 readme = "README.md"
