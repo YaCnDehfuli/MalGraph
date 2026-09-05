@@ -1,25 +1,40 @@
-# Memory-Dump CFG and Graph-Based Malware Classification
+# MalGraph
+
+CFG and GNN pipeline from memory-time disassembly.
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/ML-PyTorch_Geometric-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Volatility 3](https://img.shields.io/badge/Forensics-Volatility_3-111827)](https://volatilityfoundation.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
 
-**Technical focus:** memory forensics · graph neural networks · control-flow graphs · malware classification · reproducible evaluation
+## Results
 
-Malware classification from code recovered out of a runtime memory snapshot.
-Instead of classifying an on-disk executable, the workflow captures process
-memory, disassembles the carved image with SMDA, builds per-function
-control-flow graphs (CFGs), learns instruction and basic-block representations
-with a masked language model, pools each function graph, and classifies the
-binary through an inter-function graph neural network.
+71 tests. Packing study on 32 system binaries: static disassembly of the UPX-packed file recovers 5.4% of the functions and 4.0% of the basic blocks recovered from the original. `/usr/bin/cp` falls from 433 functions to 5.
 
-Every stage is implemented and runnable. The capture corpus it was built
-against is not redistributable — see [Data and models](#data-and-models).
+No classification number is reported. The labeled capture corpus is not published.
 
-![CFG classification workflow](docs/assets/cfg-classification-workflow.svg)
+![Static disassembly before and after packing](docs/assets/packing-recovery.png)
 
-## Data And Models
+<sub>UPX packing study, 32 system binaries. 5.4% of functions and 4.0% of basic blocks remain after packing. Source: <code>docs/measurements/packing_stats.json</code>.</sub>
+
+**Research artifact.** Not a published malware classifier.
+
+## Quickstart
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pip install -e .
+pytest
+python scripts/run_pipeline.py --out runs/current
+```
+
+With no `--reports`, `run_pipeline.py` falls back to the fixture generator so a
+fresh checkout exercises the whole path — corpus, tokenizer, encoder, pooling,
+classifier, evaluation, baselines, inference, figures — on a CPU in minutes.
+Point it at real reports for an actual experiment.
+
+## Data and models
 
 Two things here cannot be published, and their absence is deliberate rather
 than an omission:
@@ -45,23 +60,9 @@ Point the pipeline at your own reports and it trains on those instead; nothing
 in the code is specific to any of the above. See
 [Bring your own data](#bring-your-own-data).
 
-## Quick Start
-
-```bash
-python -m venv .venv && source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip install -e .
-
-pytest                                        # 71 tests across every stage
-python scripts/run_pipeline.py --out runs/current
-```
-
-With no `--reports`, `run_pipeline.py` falls back to the fixture generator so a
-fresh checkout exercises the whole path — corpus, tokenizer, encoder, pooling,
-classifier, evaluation, baselines, inference, figures — on a CPU in minutes.
-Point it at real reports for an actual experiment.
-
 ## Core Idea
+
+![CFG classification workflow](docs/assets/cfg-classification-workflow.svg)
 
 Runtime memory can expose unpacked, decrypted, relocated, or injected code that
 the static file on disk hides. This project uses that captured code in a
@@ -81,11 +82,8 @@ relationships, not proof that a branch executed during the capture window.
 That premise is measurable, so this repository measures it.
 `scripts/build_binary_corpus.py` compresses each binary with UPX — the packer
 family malware has used for decades — and disassembles both copies. Across 32
-system binaries:
-
-![Static disassembly before and after packing](docs/assets/packing-recovery.png)
-
-Static disassembly of the packed file recovers **5.4% of the functions** and
+system binaries, the packing figure above is the measurement. Static
+disassembly of the packed file recovers **5.4% of the functions** and
 **4.0% of the basic blocks** it recovers from the original. `/usr/bin/cp` falls
 from 433 functions to 5. What survives is the unpacking stub; the real code
 exists only once it has been unpacked into memory, which is exactly the moment
@@ -313,7 +311,7 @@ python -m memory_cfg.predict reports/Graph_PID6280_from_sample.json \
 `predict` refuses to run if the checkpoint's encoder dimension does not match
 the loaded encoder, which prevents silent tokenizer/encoder mismatches.
 
-## Research Boundaries
+## Limitations
 
 - The graphs come from static disassembly of captured bytes, not a dynamic trace.
 - Memory capture can reveal code absent from disk, but capture timing matters.
