@@ -1,6 +1,7 @@
 # MalGraph
 
-CFG and GNN pipeline from memory-time disassembly.
+End-to-end CFG and GNN pipeline for binary and family classification from code
+recovered in process memory.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
@@ -10,9 +11,13 @@ CFG and GNN pipeline from memory-time disassembly.
 
 ## Results
 
-71 tests. Packing study on 32 system binaries: static disassembly of the UPX-packed file recovers 5.4% of the functions and 4.0% of the basic blocks recovered from the original. `/usr/bin/cp` falls from 433 functions to 5.
+The test suite contains 71 tests. In a packing study of 32 system binaries,
+static disassembly of the packed files recovers 5.4% of the functions and
+4.0% of the basic blocks recovered from the originals. `/usr/bin/cp` falls from
+433 functions to 5.
 
-No classification number is reported. The labeled capture corpus is not published.
+No classification metrics are reported. The labeled capture corpus is not
+published.
 
 ![Static disassembly before and after packing](docs/assets/packing-recovery.png)
 
@@ -30,15 +35,14 @@ pytest
 python scripts/run_pipeline.py --out runs/current
 ```
 
-With no `--reports`, `run_pipeline.py` falls back to the fixture generator so a
-fresh checkout exercises the whole path — corpus, tokenizer, encoder, pooling,
-classifier, evaluation, baselines, inference, figures — on a CPU in minutes.
-Point it at real reports for an actual experiment.
+Without `--reports`, `run_pipeline.py` uses generated fixtures so a fresh
+checkout exercises the entire path — corpus, tokenizer, encoder, pooling,
+classifier, evaluation, baselines, inference, and figures — on a CPU in
+minutes. Supply real reports for an actual experiment.
 
 ## Data and models
 
-Two things here cannot be published, and their absence is deliberate rather
-than an omission:
+Two artifacts are intentionally absent from this repository:
 
 - **The capture corpus.** Labeled memory dumps are taken from live malware
   running inside an isolated lab VM. Redistributing them means redistributing
@@ -46,8 +50,8 @@ than an omission:
 - **The trained classifier.** A checkpoint fitted on that corpus is a derived
   artifact of it and carries the same constraints.
 
-What *is* here is the complete pipeline, plus everything needed to verify it
-against data you can obtain yourself:
+The repository provides the complete pipeline and three ways to inspect or
+exercise it with data you control:
 
 - [`scripts/build_binary_corpus.py`](scripts/build_binary_corpus.py) builds real
   labeled corpora out of executables already installed on your machine, so the
@@ -61,7 +65,7 @@ Point the pipeline at your own reports and it trains on those instead; nothing
 in the code is specific to any of the above. See
 [Bring your own data](#bring-your-own-data).
 
-## Core Idea
+## Core idea
 
 ![CFG classification workflow](docs/assets/cfg-classification-workflow.svg)
 
@@ -80,11 +84,9 @@ relationships, not proof that a branch executed during the capture window.
 
 ### Why capture memory at all
 
-That premise is measurable, so this repository measures it.
-`scripts/build_binary_corpus.py` compresses each binary with UPX — the packer
-family malware has used for decades — and disassembles both copies. Across 32
-system binaries, the packing figure above is the measurement. Static
-disassembly of the packed file recovers **5.4% of the functions** and
+The packing study tests that premise directly. `scripts/build_binary_corpus.py`
+compresses each binary with UPX and disassembles both copies. Across 32 system
+binaries, static disassembly of the packed file recovers **5.4% of the functions** and
 **4.0% of the basic blocks** it recovers from the original. `/usr/bin/cp` falls
 from 433 functions to 5. What survives is the unpacking stub; the real code
 exists only once it has been unpacked into memory, which is exactly the moment
@@ -123,8 +125,8 @@ so the encoder learns them in the same vocabulary.
 
 A compact DistilBERT is trained as a masked language model over that corpus,
 then frozen. `embed_blocks` masked-mean-pools its last hidden state into one
-vector per basic block, cached by block hash — compiler boilerplate repeats
-constantly across a corpus, so the cache pays for itself immediately.
+vector per basic block and caches vectors by block hash so repeated blocks can
+reuse their embeddings.
 
 ### Stage 3 — CFG to function embedding
 
@@ -143,10 +145,8 @@ every node in the graph shares one representation space.
 ![Inter-function call graph](docs/assets/corpus-call-graph.png)
 
 `model.HierClassifier` runs a small GraphSAGE network over that graph and reads
-it out with concatenated mean and max pooling, into a binary head and a family
-head. Max pooling matters: the behaviour that decides a label usually lives in
-a handful of functions, and a plain mean dilutes it away in a 4,000-function
-binary.
+it out with concatenated mean and max pooling into binary and family heads. The
+combined readout retains both graph-wide context and strong local activations.
 
 ## Status
 
@@ -158,10 +158,10 @@ modes that are easy to get wrong — zero-edge functions, blocks with no inciden
 edge, empty basic blocks, single-class splits, and checkpoint/encoder
 mismatches.
 
-**No classification performance is reported here.** Reporting one would require
-publishing the labeled capture corpus and the checkpoint fitted to it, and
-neither can be released. The remaining step is feeding a labeled corpus in;
-everything upstream and downstream of that is in this repository.
+**No classification performance is reported here.** A reportable result would
+require the labeled capture corpus and its fitted checkpoint, neither of which
+can be released. The implementation covers the stages before and after loading
+such a corpus.
 
 What the repository does commit to is the discipline around any number that
 does get produced. `train.py` writes four artifacts on every run — a config
@@ -170,7 +170,7 @@ test binary, a checkpoint, and per-sample predictions — and `eval.py` computes
 metrics only from that saved prediction file, never from a live model. A number
 without that artifact set is not reportable.
 
-## Bring Your Own Data
+## Bring your own data
 
 Nothing in the pipeline depends on how a report was produced, only that it
 follows SMDA's schema:
@@ -202,7 +202,7 @@ python scripts/run_pipeline.py --reports reports/ --labels reports/labels.json \
   --out runs/experiment --epochs 30
 ```
 
-## Repository Layout
+## Repository layout
 
 ```text
 src/memory_cfg/        Python package
@@ -239,7 +239,7 @@ legacy/                Historical experiments kept out of the active path
 Dumps, carved images, large reports, corpora, encoder outputs, checkpoints, and
 caches are gitignored.
 
-## Reproducibility Contract
+## Reproducibility contract
 
 A performance number is reportable only if all four of these exist for it, and
 every run writes all four:
@@ -269,7 +269,7 @@ checkpoint's sha256.
   few hundred rare subwords, every downstream token id shifts, and the results
   move with it. Keep the tokenizer next to the checkpoint it was trained with.
 
-## Full Workflow With Real Captures
+## Full workflow with real captures
 
 ### 1. Capture memory in an isolated lab
 
@@ -336,3 +336,16 @@ it removes afterwards.
 
 [MIT](LICENSE). Volatility, SMDA, model dependencies, and any external datasets
 retain their original terms.
+
+## Related work in this portfolio
+
+Memory forensics → detection engineering → evaluation of AI in security operations.
+
+| Repository | What it establishes |
+| --- | --- |
+| [VolMemLyzer3](https://github.com/YaCnDehfuli/VolMemLyzer3-CLI_forensic_tool) | Volatility 3 orchestration and feature extraction; 2.4× parallel speedup on a pinned 10-plugin set |
+| [VADViT](https://github.com/YaCnDehfuli/VADViT) | Published ViT classification of process memory — 99.2% binary accuracy, 92% macro-F1 |
+| **MalGraph** | Why memory-time recovery matters: UPX packing leaves 5.4% of functions statically recoverable |
+| [MemTriage](https://github.com/YaCnDehfuli/MemTriage) | The analyst workspace that consumes both |
+| [detection-under-load](https://github.com/YaCnDehfuli/detection-under-load) | Published Sigma coverage for T1003.001 collapses under operator-controlled renaming |
+| [agent-under-load](https://github.com/YaCnDehfuli/agent-under-load) | Whether an LLM agent can triage those detections, measured against deterministic ground truth |
